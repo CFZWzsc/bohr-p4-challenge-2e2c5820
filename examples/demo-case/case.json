@@ -1,0 +1,58 @@
+{
+  "case_id": "demo-hplc-metabolite-v03",
+  "task": "审查血浆代谢物 HPLC 方法验证方案是否具备执行条件，逐项给出定位与需补条件。",
+  "output_contract": {
+    "case_id": "string",
+    "status": "string",
+    "items": "array: checklist items with verdict, severity, evidence locator and quoted span",
+    "issues": "array: non-satisfied findings with rationale and required condition",
+    "conclusion": "string: 可行 / 有条件可行 / 不可行",
+    "resources": "object: resource status counts, item rows and conditions",
+    "citations": "array: evidence with locator, quote and verification flag",
+    "notes": "array: uncertainty and limitations",
+    "state": "object: conclusion and verdict counts",
+    "summary": "string: one-paragraph review summary"
+  },
+  "inventory_file": "inventory.csv",
+  "time_window_h": 72,
+  "parameter_domains": {
+    "column_temp": { "min": 30, "max": 40, "unit": "°C" },
+    "flow_rate": { "min": 0.1, "max": 5.0, "unit": "mL/min" },
+    "injection_volume": { "min": 1, "max": 100, "unit": "µL" }
+  },
+  "ethics": {
+    "status": "已批准",
+    "approval_id": "IRB-2025-014",
+    "valid_until": "2026-12-31"
+  },
+  "safety": {
+    "status": "已备案",
+    "hazard": "乙腈"
+  },
+  "documents": [
+    {
+      "doc_id": "SOP-LAB-014",
+      "title": "HPLC 设备使用与参数确认",
+      "version": "3.2",
+      "clauses": [
+        { "clause_id": "4.2", "text": "柱温不得超过色谱柱说明书上限 40 °C，超限须有厂家书面依据。" }
+      ]
+    },
+    {
+      "doc_id": "MAN-1260",
+      "title": "Agilent 1260 Infinity II 操作手册",
+      "version": "2024",
+      "clauses": [
+        { "clause_id": "2.1", "text": "流速允许范围 0.1–5.0 mL/min；进样量 1–100 µL。" }
+      ]
+    },
+    {
+      "doc_id": "ETH-ICS-2025",
+      "title": "人体样本研究伦理审批",
+      "version": "2025",
+      "clauses": [
+        { "clause_id": "3.1", "text": "使用人体外周血样本须在入组前取得伦理批件并登记批件编号。" }
+      ]
+    }
+  ]
+}
