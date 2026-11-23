@@ -1,0 +1,6 @@
+name,category,model,status,quantity,unit,lead_time_days,note
+Agilent 1260 Infinity II 高效液相色谱仪,设备,1260 Infinity II,已具备,1,台,0,中心实验室
+Eppendorf 5424R 离心机,设备,5424R,已具备,1,台,0,中心实验室
+ZORBAX SB-C18 色谱柱,材料,SB-C18,已具备,2,根,0,4.6x150mm
+乙腈（色谱级）,材料,色谱纯,已具备,4,L,0,通风橱
+人外周血样本,样本,EDTA抗凝,已具备,24,份,0,-80C
