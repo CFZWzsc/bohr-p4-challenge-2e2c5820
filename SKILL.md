@@ -1,103 +1,151 @@
 ---
-name: versioned-experiment-feasibility-review
-description: Use when an experimental-design case supplies one or more versioned experimental plans plus equipment, material, price, booking, sample or ethics constraints and asks for a feasibility review; run scripts/run_skill.py to produce a contract-preserving result.json with per-version checks, resource status, time and sample arithmetic, conflicts and a defensible conclusion.
+name: experimental-plan-checklist-review
+description: Use for experimental-design cases that require a checklist-based feasibility review of a protocol against equipment, materials, samples, time, ethics, parameter and risk constraints. Runs scripts/sk_entry.py over /input and writes /app/output/result.json plus /app/output/run-review.md with locator-verified findings and explicit required conditions. Standard library only, offline, deterministic.
 ---
 
-# 版本化实验方案可行性审查
+# 实验方案审查（Checklist Review）
 
-## 用途与适用条件
+## 用途
 
-对一份或一组版本化实验方案做资源与条件核验：逐项检查设备、材料、时间、样本、参数范围、风险与异常、伦理与安全七类约束，区分“已具备 / 可外协 / 需采购 / 不具备 / 未知”，给出可执行结论（可行、有条件可行、不可行、信息不足）及具体条件。
+对一份实验方案做可执行的可行性审查：按固定检查项逐条核对章节、参数行和资源表格，给出 `satisfied/partial/missing/conflict/uncertain` 判定、证据定位与原文、严重度、需补条件，并汇总为“可行 / 有条件可行 / 不可行”。输出必须能让评审人按 locator 回到原文复核，不能只给结论。
 
-适用于 `versioned_feasibility_review` 类案例：每例含 3 个版本化候选方案、前瞻性资源/价格/预约契约和有限参数域。
+## 适用条件
 
-不适用：实验执行、数据分析建模、文献综述、论文写作。审查结论不替代实验室安全员或伦理委员会的正式审批。
+- 案例要求“实验方案审查”“方案可行性/完备性评审”，并需要检查表、逐项证据或时间/样本估算。
+- 输入至少有一份可读方案材料（Markdown/Text/JSON/CSV），或 `case.json` 内嵌方案。
+- 需要核对设备/材料/样本条件、伦理与安全、参数范围、风险与异常。
+- 需要在结论中区分“已具备 / 可外协 / 需采购 / 不具备”，并给出需补条件。
 
-## 输入
+## 不适用场景
 
-- `/input/case.json`（可用 `--case`）：`case_id`、`output_contract`；常见可选键 `plans`/`plan_versions`、`resources`/`equipment`/`materials`、`price_list`、`bookings`、`samples`、`ethics`、`constraints`、`parameters`/`parameter_domains`、`time_window_h`。
-- `/input/task.md`（可选）：补充审查口径。
-- 输出默认 `/app/output/result.json`。
+- 只要求润色文字、写论文摘要、翻译或排版，不做可行性判定。
+- 只给一张图片/PDF 扫描件且没有可提取文本；本技能不解码图片或 OCR。
+- 要求联网查询供应商价格、货期或最新法规；本技能离线运行，不访问网络。
+- 要求代替伦理委员会出具审批意见，或伪造批件、库存、SOP 条款。
 
-## 处理流程（对应评分维度）
+## 输入形态
 
-1. **版本识别（任务完成度）**：按 `version`/`revision`/`version_id` 排序方案；若只有一版，标 `single_version`，不做伪差异。取最新版为主审查对象，并保留全部版本结果。
-2. **七类检查项（完整性）**：对每个版本逐项检查 `hypothesis_and_variables`、`controls`、`equipment_and_materials`、`time_cost`、`parameter_range`、`risk_and_exception`、`ethics_and_safety`；每项给 `pass`/`conditional`/`fail`/`unknown` 与依据路径。
-3. **引用匹配（正确性）**：把方案中出现的设备/材料名称与资源清单做规范化匹配（小写、去标点），输出 `matched_resource`；未匹配不得默认为“已满足”，记 `unknown`。
-4. **资源状态四分类（正确性）**：依据清单中的 `availability`/`status`/`lead_time`/`stock` 归为 `available`、`outsource`、`procure`、`unavailable`、`unknown`；采购与外协写入条件。
-5. **时间与排期算术（正确性）**：汇总步骤时长或方案声明时长，与 `time_window_h`、设备预约小时比较；给出差值与超时比例；等待周期单独列出，不并入人工工时。
-6. **样本与伦理（正确性）**：核对所需样本数、重复数与可得样本数；检测动物/人体样本/危险试剂/个人数据标志，输出所需审批级别与状态，缺审批信息记 `unknown`，不写成已批准。
-7. **参数越界（正确性）**：把方案参数值与有限参数域比较，逐项输出 `in_range`/`out_of_range`/`no_domain`。
-8. **结论与条件（可核验性）**：按“存在 fail → not_feasible；仅 conditional/unknown → conditionally_feasible 或 insufficient_information；全部 pass → feasible”的规则生成结论，并列出可执行的前置条件、责任人与复核动作。
-9. **版本差异（创新增益）**：字段级比较最新版与上一版，说明修订是否消除上一版的阻塞项。
+`--input` 指向目录，入口自适应读取：
 
-## 输出契约
+- `case.json`：案例元数据、`output_contract`、`parameter_domains`、`resources/inventory`、`ethics/safety`、`documents`、`time_window_h` 等。
+- `protocol.md` / `task.md` / `*.txt`：按 `#`/`**粗体**`/中文序号标题切分章节。
+- `*.csv` / `*.tsv`：表头识别 `name/category/model/status/quantity/unit/lead_time_days`（兼容中文列名），每行作为资源记录。
+- `*.json`：递归展开为 JSON Pointer 定位的内容节。
+- 若 `case.json` 内嵌 `protocol/plans/design/method/steps`，即使没有独立方案文件也会读取。
 
-| 字段 | 含义 |
-|-|-|
-| `case_id` | 与输入一致 |
-| `output_contract` 各字段 | 命中则填真实值，否则 `null` + `contract_notes` |
-| `status` | `success` / `partial` / `insufficient_input` / `failed` |
-| `result` | `plans_reviewed`、`reviews`（逐版本）、`selected_version`、`conclusion`、`conditions`、`version_diff`、`sample_check`、`ethics_check` |
-| `evidence` | 输入哈希、命中的键路径、资源条目索引 |
-| `uncertainty` | 未知资源状态、缺失审批、未声明参数域 |
-| `errors` / `stats` | 真实错误与计数（检查项数、fail 数） |
+## 调用方式
 
-## 异常处理表
-
-| 情况 | 处置 | 状态 |
-|-|-|-|
-| `case.json` 缺失/非法 | 空骨架 + `case_load_failed` | `failed` |
-| 无方案 | 输出空 reviews，说明缺失 | `insufficient_input` |
-| 方案无版本号 | 按输入顺序编号并注明 | `partial` |
-| 资源清单为空 | 所有资源项 `unknown`，结论最多 `insufficient_information` | `insufficient_input` |
-| 方案提到的设备未在清单 | `unmatched_resource`，不视为已具备 | `conditional` |
-| 时间窗缺失 | 不判定超时，记 `time_window_not_provided` | `partial` |
-| 伦理状态未定 | `ethics_and_safety` 记 `unknown` | `partial` |
-| 方案自相矛盾（声明的总量与分项不符） | 记录 `arithmetic_mismatch` 并以分项为准 | `partial` |
-
-## 限制
-
-- 只审查输入中出现的方案与资源，不补充外部设备参数或法规条款。
-- 不对科学假设本身做同行评审式判断，只检查其是否可检验、是否绑定变量与对照。
-- 价格、库存、排期均视为组织方前瞻性契约，不代表真实供应商报价或实验室占用。
-- 不生成审批编号或安全许可结论。
-
-## 最小调用示例（示例，非官方案例结果）
+安装后的精确命令：
 
 ```bash
-python /skills/weekly-skill/scripts/run_skill.py --case /input/case.json --out /app/output/result.json --work /app/work
+python /skills/weekly-skill/scripts/sk_entry.py --input /input --work /app/work --out /app/output
 ```
 
-示意输入：`{"case_id":"synthetic-review-demo","output_contract":{"reviews":"array","conclusion":"string"}}`。示意输出保留 `case_id`、`reviews`、`conclusion`、`status`；无方案时 `insufficient_input`，`reviews` 为空数组。仅为接口示例。
+等价 wrapper：
 
+```bash
+python /skills/weekly-skill/scripts/run_skill.py --input /input --work /app/work --out /app/output
+```
 
-## 交付保证与评分对齐
+参数：
 
-调用顺序（固定）：
+- `--input`：输入目录，默认 `/input`。
+- `--work`：工作目录，默认 `/app/work`。
+- `--out`：输出目录，默认 `/app/output`；若以 `.json` 结尾则视为结果文件路径。
 
-1. 先运行包内脚本（若存在）：`python scripts/run_skill.py`（默认读 `/input/case.json`，写 `/app/output/result.json`）；路径不同时用 `--case` / `--out` 指定。
-2. 再完成脚本无法自动完成的实质工作（译文、论述、图表、修订、结论等），把结果写回 `result.json` 对应字段。
-3. 最后自检：`case_id` 与输入一致；`output_contract` 每个字段都存在；`status` 为 `completed`（仅在确实缺输入时为 `partial`）；无 `pending` 占位；数字、引用、来源可逐条回溯。
+脚本固定写 `result.json` 与 `run-review.md`，退出码恒为 0（输入缺失/损坏也写降级结果）。
 
-运行保证：
+## 审查项体系与判定规则
 
-- 输入缺失、JSON 损坏、字段异常、输出目录不存在时，仍须写出结构化 `result.json` 并正常结束，不得崩溃或非零退出。
-- 不联网、不伪造数据、不声称平台评分或官方案例结果。
-- 交付物必须是可直接编辑与复核的成品，而不是流程说明。
+默认 9 项（`assets/checklist.json`）：
 
-评分对齐（本题五个维度）：
+| ID | 类别 | 满足条件 | 不满足时的处理 |
+|---|---|---|---|
+| CHK-01 | 假设与变量 | 假设 + 可测量变量/终点同时出现 | 只有其一→partial；均无→missing |
+| CHK-02 | 对照组 | 阴性/阳性对照与分组写明 | 明示不设对照→missing；只写对照→partial |
+| CHK-03 | 设备 | 方案点名设备在清单中且状态已具备 | 可外协/需采购→partial；不具备→conflict；无清单→uncertain |
+| CHK-04 | 材料 | 耗材/试剂/色谱柱规格与库存匹配 | 缺行/规格不符不得默认满足 |
+| CHK-05 | 样本 | 明示样本数×组数×重复数，且可得量足够 | 不足→conflict；数字缺失→uncertain |
+| CHK-06 | 时间 | 明示步骤时长合计 ≤ 时间窗 | 超窗→conflict；无时间窗→uncertain |
+| CHK-07 | 伦理与安全 | 触发项存在时审批已批准且有批件编号 | 审批中→partial；未声明→uncertain；被拒→conflict/blocker |
+| CHK-08 | 参数范围 | 每个参数落在有限参数域/设备边界内 | 越界或单位不可换算→conflict；无参数域→uncertain |
+| CHK-09 | 风险与异常 | 风险项 + 降级/替代/转人工路径 | 只有风险→partial；均无→missing |
 
-- 实际效果（40）：完整产出任务要求的最终成品，覆盖全部输入条目，可直接进入修改流程。
-- 使用增益（25）：体现相对基础 Agent 的可验证改进（结构化、术语/数字/引用核对、可编辑性）。
-- 创新增益（15）：保留方法学增量（分块、对齐、二次校验、版本比对等），并用结果证明其价值。
-- 可靠体验（10）：异常输入有明确降级与说明，不同长度/文体/重复运行下稳定产出。
-- 生态贡献（10）：用途、调用、输入输出、限制、示例、维护信息齐全，资源可被他人复用。
+规则细节见 `references/review-checklist.md`。案例自带 `checklist` 时优先采用；缺失的默认类别会补齐，并记录 `checklist_source`。
 
-## 最终交付强制要求
+## 结论口径
 
-1. **调用 Agent 必须交付成品，不是流程说明**：脚本产出只是索引、核对或规格骨架；调用 Agent 必须在同一 `result.json` 中补齐本题要求的最终产物（正文/译文/审稿意见/综述/分析结论/图表源文件与导出件/幻灯片页内容与讲稿/实验方案等）。交付字段为空、只有标题骨架，或含 `pending`、`TODO` 之类占位，一律视为未完成。
-2. **必须覆盖全部输入条目**：输入中的每个章节、问题、文献、图、页面、指标都要有对应条目，不得只处理示例或首条；确实缺失的条目写入 `uncertainty` / `limitations` 并说明原因，不得静默跳过。
-3. **必须自检后再交付**：`case_id` 与输入一致；`output_contract` 每个字段都存在；状态值取本题契约规定的枚举；数字、单位、引用、来源可逐条回溯；结果内部无自相矛盾。
-4. **参数等价**：`python scripts/run_skill.py --case <输入> --out <输出>` 与 `--output <输出>` 等价；默认 `/input/case.json` → `/app/output/result.json`。
-5. **平台用 3 个固定案例分别运行**：逻辑要由输入驱动，不针对某一份示例硬编码；字段命名差异走别名匹配与显式降级，并在 `uncertainty` 记录假设。
+- **可行**：全部检查项 satisfied。
+- **有条件可行**：无 blocker 未满足，但至少一项 partial/missing/conflict/uncertain；必须输出 `required_conditions`。
+- **不可行**：至少一项 blocker 未满足（伦理被拒/未获批、关键资源不具备、样本或时长缺口 > 50%）。
+- **信息不足**：没有可读方案材料时的降级结论；不强行判可行/不可行。
+
+`verdict_summary` 必须与 `findings` 一致：`counts.total == len(checklist)`，`findings` 等于非 satisfied 条目，结论由计数规则决定。
+
+## 证据定位格式
+
+- 行/章节：`protocol.md#L42`、`protocol.md#L28-L31`。
+- 表格行：`inventory.csv#row=4`（文件实际行号，含表头）。
+- 参数：`case.json#/parameter_domains/column_temp`。
+- SOP/手册/伦理条款：`case.json#/documents/0/clauses/0/text`。
+
+每条 finding 必须同时有 `locator` 与 `quote`；`quote` 是该定位处的连续原文，不得改写或拼接。入口会把 `quote` 回读校验，`verified=false` 的 finding 不算完成。
+
+## 严重度分级
+
+| 级别 | 含义 | 例子 |
+|---|---|---|
+| blocker | 不解决不能开工 | 伦理被拒、关键设备不具备、样本缺口 > 50% |
+| major | 影响结论或需补条件 | 无对照、参数越界、样本不足、时间超窗 |
+| minor | 影响可复现性 | 单位未写、步骤不清 |
+| info | 提示 | 版本号、责任人 |
+
+## 时间与样本估算规则
+
+- 只用输入明示数字；缺什么记 uncertain，不补经验值。
+- 时间：提取 `h/小时/min/分钟/d/天`，按设备占用/人工操作/等待周期分相，输出算式；跳过“总时长/时间窗/判读标准”行；与 `time_window_h` 比较。
+- 样本：`required = 样本数 × 组数 × 重复数`，未写组数/重复数按 1 并在公式中显示；可得量取样本库存行 `quantity` 合计；不足记 shortfall。
+- 参数：同义名归一，先单位换算再比较；无法换算记 `unit_inconsistent`。
+- 详细规则见 `references/estimation-rules.md`。
+
+## 异常处理
+
+| 情况 | 处理 |
+|---|---|
+| 缺章节 | 该检查项判 missing，定位到方案首个可读行，rationale 写明检索词未命中；不伪造引文 |
+| 参数缺失 | 判 uncertain，列出缺失参数；不默认在范围内 |
+| 单位不一致 | 先换算（时间/体积/质量/温度）；不可换算判 conflict/uncertain，并记 `unit_inconsistent` |
+| 互相矛盾 | 判 conflict，同时列两处 locator；结论按最不利处理 |
+| 无 `case.json` | 仍读方案材料并生成默认检查表；结论信息不足或按材料保守判定 |
+| `case.json` 损坏 | 写 `status=input_error` 的降级结果，保留 canonical 字段与不确定性 |
+| 无资源清单 | 设备/材料/样本判 uncertain，不默认已具备 |
+| 无 `output_contract` | 仍输出全部 canonical 字段；`contract.required_fields` 为空 |
+| 输出目录不可写 | 退出码仍为 0，错误写 stderr，不崩溃 |
+
+## 自检清单
+
+1. `result.json` 含 `case_id/status/checklist/findings/verdict_summary/resources/estimates/conflicts/missing_info/evidence/uncertainty/run_log`。
+2. `output_contract` 的每个键都在结果顶层；别名映射记录在 `contract`，未知键记录在 `contract_extras`。
+3. 每条 finding 有 locator + quote，且 `verified=true`。
+4. `counts.total == len(checklist)`，结论与计数规则一致。
+5. 每个非 satisfied 项都有 `required_condition`。
+6. 时间/样本有明确数字时才有 total，且必须有 `formula`。
+7. 无 `__pycache__`、无网络、无第三方库、输出确定。
+
+## Agent 执行步骤
+
+1. 运行入口：
+
+   ```bash
+   python /skills/weekly-skill/scripts/sk_entry.py --input /input --work /app/work --out /app/output
+   ```
+
+2. 打开 `/app/output/result.json`，逐条读取 `findings`。
+3. 对每条 finding：
+   - 按 `evidence.locator` 回到输入文件（行号/表格行/JSON Pointer）定位；
+   - 确认 `evidence.quote` 是连续原文；若不一致，修正或标记 `verified=false` 并在 `uncertainty` 说明；
+   - 复核 `verdict`、`severity`、`required_condition` 是否与原文一致。
+4. 核对 `verdict_summary` 与 `findings`：计数、结论口径必须一致；有 blocker 未满足时必须为“不可行”。
+5. 核对 `estimates.time.formula` 与 `estimates.samples.formula` 只使用输入明示数字。
+6. 将人工复核结论写入 `/app/output/run-review.md`（脚本已生成基础版，可在其上补充“已人工核对/修正”记录），保留逐项 locator 与 quote。
+7. 最后再确认 `/app/output/result.json` 与 `/app/output/run-review.md` 均存在且可解析。
