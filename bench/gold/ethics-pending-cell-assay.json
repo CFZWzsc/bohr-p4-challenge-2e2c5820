@@ -1,0 +1,11 @@
+{
+  "case_id": "bench-ethics-pending-001",
+  "expected_findings": [
+    {
+      "category": "伦理与安全",
+      "locator_hint": "protocol.md 第 6 节“伦理与安全”首行；case.json#/ethics"
+    }
+  ],
+  "expected_conclusion": "不可行",
+  "notes": "唯一缺口：涉及人体外周血样本，但 case.json#/ethics.status=审批中，方案原文亦写“伦理审批中，批件尚未下发”。伦理与安全为 blocker，未满足即判不可行。其余 8 项均按原文/清单可判 satisfied：阴性+阳性对照同节写明；设备与材料均在 inventory.csv 中已具备；样本需求 8×1×2=16 ≤ 可得 20；分项时长 75 h ≤ 168 h；柱温 37 °C、CO2 5%、波长 450 nm、转速 100 rpm 均在参数域内；风险与降级/转人工路径同时存在。"
+}
