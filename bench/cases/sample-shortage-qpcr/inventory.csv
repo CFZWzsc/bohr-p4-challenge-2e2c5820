@@ -1,0 +1,7 @@
+name,category,model,status,quantity,unit,lead_time_days,note
+QuantStudio 5 实时荧光定量 PCR 仪,设备,QuantStudio 5,已具备,1,台,0,分子实验室
+NanoDrop 2000 分光光度计,设备,NanoDrop 2000,已具备,1,台,0,分子实验室
+SYBR Green PCR 预混液,材料,SYBR Green,已具备,5,瓶,0,-20C
+Ppargc1a 引物,材料,Ppargc1a,已具备,2,管,0,-20C
+RNA 提取试剂盒,材料,Total RNA Kit,已具备,3,盒,0,4C
+小鼠肝组织样本,样本,C57BL/6J,已具备,60,份,0,-80C
