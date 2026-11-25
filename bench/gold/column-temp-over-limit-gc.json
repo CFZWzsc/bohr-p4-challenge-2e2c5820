@@ -1,0 +1,11 @@
+{
+  "case_id": "bench-column-temp-over-003",
+  "expected_findings": [
+    {
+      "category": "参数范围",
+      "locator_hint": "protocol.md 第 7 节“参数与判读标准”柱温行；case.json#/parameter_domains/column_temp"
+    }
+  ],
+  "expected_conclusion": "有条件可行",
+  "notes": "唯一缺口：柱温设定 250 °C，超出 parameter_domains.column_temp 的 [200, 240] °C，判 conflict/major，无 blocker，故有条件可行。其余参数（进样口温度 200 °C、载气流速 2.0 mL/min、分流比 10:1）均在域内；对照、设备、材料、样本（需求 20 = 可得 20）、时长（3.5 h ≤ 24 h）、安全备案、风险与降级路径均满足。"
+}
