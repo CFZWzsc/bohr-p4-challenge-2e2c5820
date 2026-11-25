@@ -2124,6 +2124,53 @@ def severity_counts(items):
     return counts
 
 
+def build_score(items, verdict_summary):
+    """Quantify the checklist into per-category and overall scores (competitor-style rollup).
+
+    verdict -> score: satisfied 100, partial 60, uncertain 50, missing 40, conflict 0.
+    Blockers that are not satisfied force the 不可行 grade and cap the overall score.
+    """
+    weights = {"satisfied": 100, "partial": 60, "uncertain": 50, "missing": 40, "conflict": 0}
+    grouped = {}
+    counted = 0
+    for item in items:
+        verdict = item.get("verdict")
+        if verdict not in weights:
+            continue
+        category = item.get("category") or "未分类"
+        grouped.setdefault(category, []).append(weights[verdict])
+        counted += 1
+    per_category = {cat: round(sum(vals) / len(vals), 1) for cat, vals in sorted(grouped.items())}
+    overall = round(sum(per_category.values()) / len(per_category), 1) if per_category else 0.0
+    blocker_unmet = verdict_summary.get("blocker_unmet", 0)
+    if blocker_unmet:
+        grade = "不可行"
+        overall = min(overall, 59.9)
+    elif overall >= 80:
+        grade = "可行"
+    elif overall >= 60:
+        grade = "有条件可行"
+    else:
+        grade = "不可行"
+    conditions = [{"item_id": item.get("item_id"), "category": item.get("category"),
+                   "needed": item.get("required_condition") or item.get("rationale")}
+                  for item in items if item.get("verdict") in ("partial", "missing", "conflict", "uncertain")]
+    return {
+        "per_category": per_category,
+        "overall": overall,
+        "grade": grade,
+        "scored_items": counted,
+        "counts_consistent": counted == len(items) and
+        verdict_summary.get("counts", {}).get("total") == len(items),
+        "blocking": [{"item_id": item.get("item_id"), "category": item.get("category")}
+                     for item in items if item.get("severity") == "blocker"
+                     and item.get("verdict") != "satisfied"],
+        "condition_list": conditions,
+        "weights": weights,
+        "rule": "分类均值等权汇总；未满足的 blocker 直接判不可行并将总分上限压到 59.9。",
+    }
+
+
 def decide_conclusion(items, has_material):
     if not has_material:
         return "信息不足"
@@ -2379,6 +2426,7 @@ def build_review(state):
         "status": status,
         "status_reason": status_reason,
         "verdict_summary": verdict_summary,
+        "score": build_score(items, verdict_summary),
         "conclusion": conclusion,
         "summary": summary,
         "checklist": items,
@@ -2618,6 +2666,20 @@ def resolve_outputs(out_value):
     return out_dir, result_path
 
 
+def write_checklist_csv(result, out_dir):
+    """Emit the row-level reconciliation table used by the score rollup."""
+    path = os.path.join(out_dir, "constraint_check.csv")
+    with open(path, "w", encoding="utf-8", newline="") as handle:
+        writer = csv.writer(handle)
+        writer.writerow(["category", "item_id", "verdict", "severity", "locator", "quote"])
+        for item in result.get("checklist") or []:
+            evidence = item.get("evidence") or {}
+            quote = str(evidence.get("quote") or "").replace("\n", " ").replace("\r", " ")
+            writer.writerow([item.get("category"), item.get("item_id"), item.get("verdict"),
+                             item.get("severity"), evidence.get("locator"), quote])
+    return path
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Checklist-based experimental protocol feasibility review.")
     parser.add_argument("--input", default="/input", help="input directory containing case.json and material")
@@ -2657,6 +2719,7 @@ def main(argv=None):
     try:
         write_json(result_path, result)
         write_review(result, out_dir)
+        write_checklist_csv(result, out_dir)
     except OSError as exc:
         sys.stderr.write("cannot write output: %s\n" % exc)
         return 0
