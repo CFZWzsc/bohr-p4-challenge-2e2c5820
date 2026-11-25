@@ -1,0 +1,58 @@
+{
+  "case_id": "bench-sample-shortage-002",
+  "task": "审查小鼠肝组织 qPCR 验证方案是否具备执行条件，逐项给出定位与需补条件。",
+  "output_contract": {
+    "case_id": "string",
+    "status": "string",
+    "items": "array: checklist items with verdict, severity, evidence locator and quoted span",
+    "issues": "array: non-satisfied findings with rationale and required condition",
+    "conclusion": "string: 可行 / 有条件可行 / 不可行",
+    "resources": "object: resource status counts, item rows and conditions",
+    "citations": "array: evidence with locator, quote and verification flag",
+    "notes": "array: uncertainty and limitations",
+    "state": "object: conclusion and verdict counts",
+    "summary": "string: one-paragraph review summary"
+  },
+  "inventory_file": "inventory.csv",
+  "time_window_h": 48,
+  "parameter_domains": {
+    "temperature": { "min": 55, "max": 65, "unit": "°C" },
+    "循环数": { "min": 35, "max": 45, "unit": "次" },
+    "volume": { "min": 1, "max": 5, "unit": "µL" }
+  },
+  "ethics": {
+    "status": "已批准",
+    "approval_id": "IACUC-2025-031",
+    "valid_until": "2026-12-31"
+  },
+  "safety": {
+    "status": "已备案",
+    "hazard": "SYBR Green、氯仿"
+  },
+  "documents": [
+    {
+      "doc_id": "SOP-MOL-008",
+      "title": "组织 RNA 提取与 qPCR SOP",
+      "version": "1.4",
+      "clauses": [
+        { "clause_id": "5.2", "text": "qPCR 退火温度须在 55–65 °C 内，循环数 35–45。" }
+      ]
+    },
+    {
+      "doc_id": "MAN-QS5",
+      "title": "QuantStudio 5 实时荧光定量 PCR 仪操作手册",
+      "version": "2024",
+      "clauses": [
+        { "clause_id": "2.3", "text": "反应体积 10–20 µL，模板体积不超过 5 µL。" }
+      ]
+    },
+    {
+      "doc_id": "ETH-IACUC-2025",
+      "title": "动物实验伦理审批",
+      "version": "2025",
+      "clauses": [
+        { "clause_id": "1.4", "text": "使用小鼠须在实验开始前取得动物伦理批件并登记批件编号。" }
+      ]
+    }
+  ]
+}
