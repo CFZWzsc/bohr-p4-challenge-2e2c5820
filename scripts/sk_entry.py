@@ -2290,6 +2290,20 @@ def build_review(state):
         uncertainty.append({"kind": "unmatched_resource", "item": row.get("model"),
                             "detail": "型号未在资源清单中匹配，按未知处理。",
                             "resolution": "在清单中补充该型号或改用清单内型号。"})
+    known_details = " ".join(str(item.get("detail", "")) for item in uncertainty)
+    for row in conflicts:
+        detail = row.get("detail") or row.get("kind") or ""
+        if detail and detail in known_details:
+            continue
+        uncertainty.append({"kind": "open_conflict", "item": row.get("kind"),
+                            "detail": detail,
+                            "resolution": "先按 required_conditions 修正该冲突来源再重跑；冲突未关闭前结论不视为可直接执行。"})
+    for missing in missing_info:
+        if missing and missing in known_details:
+            continue
+        uncertainty.append({"kind": "missing_information", "item": missing,
+                            "detail": "材料中未给出该项，相关判断按最保守处理。",
+                            "resolution": "补充该项后重跑；在此之前不得把对应检查项视为满足。"})
 
     verified_count = pool.verify_all()
     summary = "审查 %d 项：满足 %d，部分满足 %d，缺失 %d，冲突 %d，不确定 %d；结论：%s。" % (
@@ -2313,11 +2327,14 @@ def build_review(state):
         "basis": "资源状态来自案例清单；清单缺失时记未知，不默认已具备。",
     }
 
+    blockers = [item for item in items if item.get("severity") == "blocker"]
     verdict_summary = {
         "conclusion": conclusion,
         "conclusion_code": conclusion_code,
         "counts": counts,
         "severity_counts": severity_counts(items),
+        "blocker_total": len(blockers),
+        "blocker_unmet": sum(1 for item in blockers if item.get("verdict") != "satisfied"),
         "findings": len(findings),
         "total_items": len(items),
         "rule": "任一 blocker 未满足→不可行；否则任一未满足→有条件可行；全部满足→可行。",
