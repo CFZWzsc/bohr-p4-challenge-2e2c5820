@@ -1,0 +1,184 @@
+{
+  "baseline": {
+    "conclusion_rule": "可行",
+    "cross_checks": "none",
+    "keywords": [
+      "缺失",
+      "未提供",
+      "不设",
+      "未设",
+      "未附",
+      "超过"
+    ]
+  },
+  "benchmark": "experimental-plan-checklist-review",
+  "cases": [
+    {
+      "baseline": {
+        "conclusion": "可行",
+        "conclusion_match": false,
+        "false_negative_categories": 1,
+        "false_positive_categories": 0,
+        "false_positives": [],
+        "matched": [],
+        "missed": [
+          "参数范围"
+        ],
+        "predictions": [],
+        "true_positive_categories": 0,
+        "unresolved_gaps": 1,
+        "verified_findings": 0
+      },
+      "case_dir": "bench/cases/column-temp-over-limit-gc",
+      "case_id": "bench-column-temp-over-003",
+      "expected_categories": [
+        "参数范围"
+      ],
+      "expected_conclusion": "有条件可行",
+      "skill": {
+        "conclusion": "有条件可行",
+        "conclusion_match": true,
+        "false_negative_categories": 0,
+        "false_positive_categories": 0,
+        "false_positives": [],
+        "matched": [
+          "参数范围"
+        ],
+        "missed": [],
+        "predictions": [
+          "参数范围"
+        ],
+        "true_positive_categories": 1,
+        "unresolved_gaps": 0,
+        "verified_findings": 1
+      }
+    },
+    {
+      "baseline": {
+        "conclusion": "可行",
+        "conclusion_match": false,
+        "false_negative_categories": 1,
+        "false_positive_categories": 1,
+        "false_positives": [
+          "参数范围"
+        ],
+        "matched": [],
+        "missed": [
+          "伦理与安全"
+        ],
+        "predictions": [
+          "参数范围"
+        ],
+        "true_positive_categories": 0,
+        "unresolved_gaps": 1,
+        "verified_findings": 0
+      },
+      "case_dir": "bench/cases/ethics-pending-cell-assay",
+      "case_id": "bench-ethics-pending-001",
+      "expected_categories": [
+        "伦理与安全"
+      ],
+      "expected_conclusion": "不可行",
+      "skill": {
+        "conclusion": "不可行",
+        "conclusion_match": true,
+        "false_negative_categories": 0,
+        "false_positive_categories": 0,
+        "false_positives": [],
+        "matched": [
+          "伦理与安全"
+        ],
+        "missed": [],
+        "predictions": [
+          "伦理与安全"
+        ],
+        "true_positive_categories": 1,
+        "unresolved_gaps": 0,
+        "verified_findings": 1
+      }
+    },
+    {
+      "baseline": {
+        "conclusion": "可行",
+        "conclusion_match": false,
+        "false_negative_categories": 1,
+        "false_positive_categories": 0,
+        "false_positives": [],
+        "matched": [],
+        "missed": [
+          "样本"
+        ],
+        "predictions": [],
+        "true_positive_categories": 0,
+        "unresolved_gaps": 1,
+        "verified_findings": 0
+      },
+      "case_dir": "bench/cases/sample-shortage-qpcr",
+      "case_id": "bench-sample-shortage-002",
+      "expected_categories": [
+        "样本"
+      ],
+      "expected_conclusion": "有条件可行",
+      "skill": {
+        "conclusion": "有条件可行",
+        "conclusion_match": true,
+        "false_negative_categories": 0,
+        "false_positive_categories": 0,
+        "false_positives": [],
+        "matched": [
+          "样本"
+        ],
+        "missed": [],
+        "predictions": [
+          "样本"
+        ],
+        "true_positive_categories": 1,
+        "unresolved_gaps": 0,
+        "verified_findings": 1
+      }
+    }
+  ],
+  "definitions": {
+    "category_precision": "TP 类别数 / (TP + FP) 类别数；无预测且存在期望缺口时记 0。",
+    "category_recall": "TP 类别数 / (TP + FN) 类别数；按案例汇总。",
+    "conclusion_accuracy": "结论与金标准一致的案例数 / 案例总数。",
+    "gold_rule": "每个案例只有一个非 satisfied 检查项，且其结论由技能计数规则唯一决定。",
+    "unresolved_gaps": "金标准中未被该系统命中的缺口类别数。",
+    "verified_findings": "命中类别的 finding 中 evidence.verified=true 的条目数。"
+  },
+  "gates": {
+    "conclusion_strictly_better": true,
+    "recall_strictly_better": true
+  },
+  "summary": {
+    "baseline": {
+      "cases": 3,
+      "category_precision": 0.0,
+      "category_recall": 0.0,
+      "conclusion_accuracy": 0.0,
+      "false_negative_categories": 3,
+      "false_positive_categories": 1,
+      "true_positive_categories": 0,
+      "unresolved_gaps": 3,
+      "verified_findings": 0
+    },
+    "delta": {
+      "category_precision": 1.0,
+      "category_recall": 1.0,
+      "conclusion_accuracy": 1.0,
+      "unresolved_gaps": 3,
+      "verified_findings": 3
+    },
+    "skill": {
+      "cases": 3,
+      "category_precision": 1.0,
+      "category_recall": 1.0,
+      "conclusion_accuracy": 1.0,
+      "false_negative_categories": 0,
+      "false_positive_categories": 0,
+      "true_positive_categories": 3,
+      "unresolved_gaps": 0,
+      "verified_findings": 3
+    }
+  }
+}
