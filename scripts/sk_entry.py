@@ -2421,6 +2421,26 @@ def build_review(state):
         status = "input_error"
         status_reason = state["case_error"]
 
+    components = time_est.get("components") or []
+    time_total = time_est.get("total_hours")
+    if time_total is not None and components:
+        parts_sum = round(sum(float(row.get("hours") or 0) for row in components), 2)
+        time_est["arithmetic"] = {"components_sum": parts_sum, "total_hours": time_total,
+                                  "consistent": abs(parts_sum - float(time_total)) <= 0.01}
+
+    def _as_number(value):
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return None
+
+    available = _as_number(samples_est.get("available"))
+    required = _as_number(samples_est.get("required_effective"))
+    samples_est["arithmetic"] = {
+        "available": samples_est.get("available"),
+        "required_effective": samples_est.get("required_effective"),
+        "consistent": available is None or required is None or available >= required}
+
     result = {
         "case_id": str(case.get("case_id") or ""),
         "status": status,
