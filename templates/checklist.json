@@ -1,0 +1,101 @@
+{
+  "version": "1.0.0-template",
+  "description": "实验方案可行性审查的可复用检查项模板。按案例复制到 case.json#/checklist，或作为人工复核清单使用。",
+  "usage": {
+    "placeholder": "<按案例填写：检查项名称、阈值、依据文档与责任人>",
+    "integration": "复制 items 到 case.json 的 checklist 字段；技能会优先采用案例检查项，并补齐缺失的默认类别。",
+    "evidence_rule": "每条非 satisfied 判定都必须能写回原文 locator 与连续 quote；没有原文支持时判 uncertain，不得默认 satisfied。"
+  },
+  "fields": {
+    "item_id": "稳定标识，建议 CHK-01 起顺序编号",
+    "category": "类别名，需能被类别映射识别（假设与变量/对照组/设备/材料/样本/时间/伦理与安全/参数范围/风险与异常）",
+    "question": "可回答的审查问题",
+    "severity": "blocker / major / minor / info",
+    "basis": "判定依据来源，如 SOP、设备手册、伦理批件、采购记录",
+    "rule": "满足/部分/缺失/冲突/不确定的判定口径",
+    "evidence_required": "该检查项至少需要的定位类型"
+  },
+  "items": [
+    {
+      "item_id": "CHK-01",
+      "category": "假设与变量",
+      "question": "方案是否给出可检验假设，并绑定自变量、因变量与主要终点？",
+      "severity": "major",
+      "basis": "方法学规范/SOP",
+      "rule": "假设与可测量变量/终点同时出现判满足；仅出现其一判 partial；均未出现判 missing。",
+      "evidence_required": "假设句 + 变量/终点句，各带 locator 与 quote"
+    },
+    {
+      "item_id": "CHK-02",
+      "category": "对照组",
+      "question": "方案是否设置对照，并说明阴性/阳性对照与分组方式？",
+      "severity": "major",
+      "basis": "SOP/方法学规范",
+      "rule": "阴性、阳性对照均写明判 satisfied；明确写“不设对照”判 missing；只写对照未分层判 partial。",
+      "evidence_required": "对照章节原文，含阴性/阳性对照与分组"
+    },
+    {
+      "item_id": "CHK-03",
+      "category": "设备",
+      "question": "方案点名的设备型号/精度是否在资源清单中且可用？",
+      "severity": "major",
+      "basis": "设备清单/设备手册",
+      "rule": "已具备判 satisfied；可外协或需采购判 partial；不具备判 conflict；清单缺失判 uncertain。",
+      "evidence_required": "方案设备行 + 清单对应行"
+    },
+    {
+      "item_id": "CHK-04",
+      "category": "材料",
+      "question": "方案所需耗材、试剂、色谱柱的规格与库存是否满足？",
+      "severity": "major",
+      "basis": "材料清单/采购记录",
+      "rule": "逐行匹配材料清单与库存数量；缺行或规格不符不得默认 satisfied。",
+      "evidence_required": "方案材料行 + 清单规格/数量行"
+    },
+    {
+      "item_id": "CHK-05",
+      "category": "样本",
+      "question": "样本来源、数量、保存条件与分组重复数是否够用？",
+      "severity": "major",
+      "basis": "样本清单/伦理批件",
+      "rule": "required=样本数×组数×重复数；available≥required 判 satisfied；缺口≤50% 判 conflict/major；>50% 判 conflict/blocker；数字缺失判 uncertain。",
+      "evidence_required": "入组/样本行 + 库存样本行，附算式"
+    },
+    {
+      "item_id": "CHK-06",
+      "category": "时间",
+      "question": "步骤时长合计是否在项目时间窗内？",
+      "severity": "major",
+      "basis": "排期表/SOP",
+      "rule": "仅汇总明示时长并写出算式；合计≤时间窗判 satisfied；超窗判 conflict；无时间窗判 uncertain；无任何时长判 missing。",
+      "evidence_required": "各步骤时长行 + 时间窗字段"
+    },
+    {
+      "item_id": "CHK-07",
+      "category": "伦理与安全",
+      "question": "涉及人体、动物、危险试剂或个人数据时，审批与安全状态是否明确？",
+      "severity": "blocker",
+      "basis": "伦理规范/安全制度",
+      "rule": "已批准判 satisfied；审批中判 partial；被拒判 conflict/blocker；未声明判 uncertain/blocker。",
+      "evidence_required": "触发项原文 + 伦理/安全状态字段或批件条款"
+    },
+    {
+      "item_id": "CHK-08",
+      "category": "参数范围",
+      "question": "方案参数值是否落在有限参数域或设备/安全边界内？",
+      "severity": "major",
+      "basis": "设备手册/SOP/参数域",
+      "rule": "逐参数比较上下限或允许值；越界判 conflict；单位不可换算判 conflict；无参数域判 uncertain。",
+      "evidence_required": "参数设定行 + 参数域/手册条款"
+    },
+    {
+      "item_id": "CHK-09",
+      "category": "风险与异常",
+      "question": "方案是否列出风险及可执行的降级/替代/转人工路径？",
+      "severity": "major",
+      "basis": "风险管理制度/SOP",
+      "rule": "风险项与降级/替代/转人工路径同时出现判 satisfied；只有风险判 partial；均无判 missing。",
+      "evidence_required": "风险项原文 + 处置/降级路径原文"
+    }
+  ]
+}
