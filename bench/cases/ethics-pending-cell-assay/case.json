@@ -1,0 +1,60 @@
+{
+  "case_id": "bench-ethics-pending-001",
+  "task": "审查细胞增殖抑制实验方案是否具备执行条件，逐项给出定位与需补条件。",
+  "output_contract": {
+    "case_id": "string",
+    "status": "string",
+    "items": "array: checklist items with verdict, severity, evidence locator and quoted span",
+    "issues": "array: non-satisfied findings with rationale and required condition",
+    "conclusion": "string: 可行 / 有条件可行 / 不可行",
+    "resources": "object: resource status counts, item rows and conditions",
+    "citations": "array: evidence with locator, quote and verification flag",
+    "notes": "array: uncertainty and limitations",
+    "state": "object: conclusion and verdict counts",
+    "summary": "string: one-paragraph review summary"
+  },
+  "inventory_file": "inventory.csv",
+  "time_window_h": 168,
+  "parameter_domains": {
+    "temperature": { "min": 36, "max": 38, "unit": "°C" },
+    "concentration": { "min": 4, "max": 6, "unit": "%" },
+    "检测波长": { "min": 400, "max": 700, "unit": "nm" },
+    "rpm": { "min": 50, "max": 150, "unit": "rpm" }
+  },
+  "ethics": {
+    "status": "审批中",
+    "approval_id": "",
+    "submitted_on": "2026-10-01",
+    "note": "细胞实验伦理申请已提交，尚未取得批件。"
+  },
+  "safety": {
+    "status": "已备案",
+    "hazard": "DMSO、紫杉醇"
+  },
+  "documents": [
+    {
+      "doc_id": "SOP-CELL-021",
+      "title": "细胞培养与增殖检测 SOP",
+      "version": "2.1",
+      "clauses": [
+        { "clause_id": "3.1", "text": "细胞培养与 CCK-8 检测须在生物安全柜内完成，培养温度 36–38 °C。" }
+      ]
+    },
+    {
+      "doc_id": "MAN-HERA-150i",
+      "title": "HERAcell 150i CO2 培养箱操作手册",
+      "version": "2023",
+      "clauses": [
+        { "clause_id": "1.2", "text": "CO2 浓度设定范围 4%–6%，培养温度 36–38 °C。" }
+      ]
+    },
+    {
+      "doc_id": "ETH-IRB-2026",
+      "title": "人体样本研究伦理审批",
+      "version": "2026",
+      "clauses": [
+        { "clause_id": "2.1", "text": "使用人体外周血样本须在入组前取得伦理批件并登记批件编号与有效期。" }
+      ]
+    }
+  ]
+}
