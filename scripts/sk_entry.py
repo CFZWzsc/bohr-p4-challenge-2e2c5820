@@ -2661,6 +2661,14 @@ def main(argv=None):
         sys.stderr.write("cannot write output: %s\n" % exc)
         return 0
 
+    try:
+        from publish_artifacts import emit_artifacts
+        emit_artifacts(result, result_path, "experiment protocol feasibility",
+                       "python scripts/sk_entry.py --input /input --work /app/work --out /app/output",
+                       [os.path.join(input_dir, "case.json")])
+    except Exception as exc:  # auxiliary artifacts must never fail the run
+        sys.stderr.write("artifact emit skipped: %s\n" % exc)
+
     sys.stdout.write(json.dumps({
         "case_id": result.get("case_id"),
         "status": result.get("status"),
