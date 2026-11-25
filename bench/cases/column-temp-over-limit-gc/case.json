@@ -1,0 +1,59 @@
+{
+  "case_id": "bench-column-temp-over-003",
+  "task": "审查顶空气相色谱测定注射剂中乙醇残留方案是否具备执行条件，逐项给出定位与需补条件。",
+  "output_contract": {
+    "case_id": "string",
+    "status": "string",
+    "items": "array: checklist items with verdict, severity, evidence locator and quoted span",
+    "issues": "array: non-satisfied findings with rationale and required condition",
+    "conclusion": "string: 可行 / 有条件可行 / 不可行",
+    "resources": "object: resource status counts, item rows and conditions",
+    "citations": "array: evidence with locator, quote and verification flag",
+    "notes": "array: uncertainty and limitations",
+    "state": "object: conclusion and verdict counts",
+    "summary": "string: one-paragraph review summary"
+  },
+  "inventory_file": "inventory.csv",
+  "time_window_h": 24,
+  "parameter_domains": {
+    "column_temp": { "min": 200, "max": 240, "unit": "°C" },
+    "temperature": { "min": 150, "max": 220, "unit": "°C" },
+    "flow_rate": { "min": 0.5, "max": 3.0, "unit": "mL/min" },
+    "分流比": { "min": 1, "max": 20, "unit": "" }
+  },
+  "ethics": {
+    "status": "已批准",
+    "approval_id": "SAFE-2025-008",
+    "note": "危险试剂安全备案已批准。"
+  },
+  "safety": {
+    "status": "已备案",
+    "hazard": "乙醇"
+  },
+  "documents": [
+    {
+      "doc_id": "SOP-GC-012",
+      "title": "顶空气相色谱测定 SOP",
+      "version": "2.0",
+      "clauses": [
+        { "clause_id": "4.1", "text": "柱温运行上限 240 °C，超限须有色谱柱厂家书面依据。" }
+      ]
+    },
+    {
+      "doc_id": "MAN-8890",
+      "title": "Agilent 8890 气相色谱仪操作手册",
+      "version": "2024",
+      "clauses": [
+        { "clause_id": "2.2", "text": "进样口温度 150–220 °C；载气流速 0.5–3.0 mL/min。" }
+      ]
+    },
+    {
+      "doc_id": "SAFE-2025-008",
+      "title": "危险试剂安全备案",
+      "version": "2025",
+      "clauses": [
+        { "clause_id": "1.3", "text": "乙醇操作须在通风橱内完成并登记使用量。" }
+      ]
+    }
+  ]
+}
