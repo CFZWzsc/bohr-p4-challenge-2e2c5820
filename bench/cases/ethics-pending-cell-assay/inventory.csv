@@ -1,0 +1,7 @@
+name,category,model,status,quantity,unit,lead_time_days,note
+Thermo HERAcell 150i CO2 培养箱,设备,HERAcell 150i,已具备,1,台,0,细胞房
+BioTek Synergy H1 酶标仪,设备,Synergy H1,已具备,1,台,0,细胞房
+RPMI 1640 培养基,材料,RPMI 1640,已具备,10,L,0,4C
+FBS 补充剂,材料,FBS,已具备,2,L,0,-20C
+CCK-8 检测试剂盒,材料,CCK-8,已具备,5,盒,0,4C
+人外周血 PBMC 样本,样本,PBMC,已具备,20,份,0,液氮
