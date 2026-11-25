@@ -1,0 +1,11 @@
+{
+  "case_id": "bench-sample-shortage-002",
+  "expected_findings": [
+    {
+      "category": "样本",
+      "locator_hint": "protocol.md 第 4 节“样本”入组行 + inventory.csv 第 7 行肝组织库存"
+    }
+  ],
+  "expected_conclusion": "有条件可行",
+  "notes": "唯一缺口：样本需求按 10 只 × 3 组 × 3 次重复 = 90 份，清单可得 60 份，缺口 30 份，缺口比例 30/90=33.3% ≤ 50%，故 severity=major、结论为有条件可行而非不可行。其余 8 项均 satisfied：对照齐全；设备/材料已具备；时长 7 h ≤ 48 h；退火 60 °C、循环 40、模板 2 µL 均在参数域内；动物伦理已批准；风险与降级路径齐全。"
+}
