@@ -24,6 +24,7 @@ answers, private data or credentials are included.
 | `references/estimation-rules.md` |
 | `references/review-checklist.md` |
 | `references/verdict-and-evidence.md` |
+| `scripts/publish_artifacts.py` |
 | `scripts/run_skill.py` |
 | `scripts/sk_entry.py` |
 | `README.md` |
